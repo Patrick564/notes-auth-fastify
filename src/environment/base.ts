@@ -21,7 +21,7 @@ const schema = {
   }
 }
 
-const secretsPlugin = (router: FastifyInstance, _opts: any, done: any) => {
+const secretsPlugin = async (router: FastifyInstance, _opts: any, done: any) => {
   router.log.info('Loading enviroment variables')
 
   router.register(fastifyEnv, { schema, dotenv: true })

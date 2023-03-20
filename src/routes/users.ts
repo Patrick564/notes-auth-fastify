@@ -20,7 +20,7 @@ const usersRoute = async (router: FastifyInstance, _opts: FastifyServerOptions, 
     Params: {
       username: string
     }
-  }>('/:username', async (req, reply) => {
+  }>('/:username', { onRequest: [router.authenticate] }, async (req, reply) => {
     const { username } = req.params
     const [rows, fields] = await router.mysql.execute('SELECT * FROM users WHERE username = ?', [username])
 

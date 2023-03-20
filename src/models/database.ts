@@ -5,7 +5,7 @@ const databasePlugin = async (router: FastifyInstance, _opts: any, done: any) =>
   router.log.info('Connecting to database')
 
   router.register(mysql, {
-    connectionString: router.config.DB_URL,
+    connectionString: process.env.DB_URL,
     promise: true,
     ssl: {
       rejectUnauthorized: true
