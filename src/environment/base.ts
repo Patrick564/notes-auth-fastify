@@ -1,3 +1,6 @@
+import { FastifyInstance } from 'fastify'
+import fastifyEnv from '@fastify/env'
+
 interface Env {
   PORT: number,
   DB_URL: string
@@ -18,4 +21,12 @@ const schema = {
   }
 }
 
-export { Env, schema }
+const secretsPlugin = (router: FastifyInstance, _opts: any, done: any) => {
+  router.log.info('Loading enviroment variables')
+
+  router.register(fastifyEnv, { schema, dotenv: true })
+
+  done()
+}
+
+export { Env, secretsPlugin }

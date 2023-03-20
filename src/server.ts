@@ -1,12 +1,13 @@
 import { fastify, FastifyInstance } from 'fastify'
 import { MySQLPromisePool } from '@fastify/mysql'
-import fastifyEnv from '@fastify/env'
+import plugin from 'fastify-plugin'
 
-import { Env, schema } from './environment/base.js'
+import { Env, secretsPlugin } from './environment/base.js'
 import { usersRoute } from './routes/users.js'
-import { databaseConn } from './models/database.js'
+import { databasePlugin } from './models/database.js'
+import { Server } from 'http'
 
-const server: FastifyInstance = fastify({ logger: true })
+const server: FastifyInstance<Server> = fastify({ logger: true })
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -20,8 +21,8 @@ server.register(usersRoute, { prefix: '/api/tasks' })
 
 const start = async () => {
   try {
-    await server.register(fastifyEnv, { schema, dotenv: true })
-    await server.register(databaseConn)
+    await server.register(plugin(secretsPlugin))
+    await server.register(plugin(databasePlugin))
 
     await server.listen({ host: '0.0.0.0', port: server.config.PORT })
   } catch (err) {

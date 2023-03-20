@@ -1,7 +1,7 @@
-import { FastifyInstance, FastifyPluginOptions } from 'fastify'
+import { FastifyInstance } from 'fastify'
 import mysql from '@fastify/mysql'
 
-const databaseConn = async (router: FastifyInstance, _: FastifyPluginOptions) => {
+const databasePlugin = async (router: FastifyInstance, _opts: any, done: any) => {
   router.log.info('Connecting to database')
 
   router.register(mysql, {
@@ -11,6 +11,8 @@ const databaseConn = async (router: FastifyInstance, _: FastifyPluginOptions) =>
       rejectUnauthorized: true
     }
   })
+
+  done()
 }
 
-export { databaseConn }
+export { databasePlugin }
