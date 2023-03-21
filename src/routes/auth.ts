@@ -1,5 +1,8 @@
 import { FastifyInstance, FastifyServerOptions } from 'fastify'
-import { compare } from 'bcrypt'
+import { RowDataPacket } from 'mysql2'
+import { compare, hash } from 'bcrypt'
+
+import { HttpStatusCode } from '../environment/statusCodes.js'
 
 const authRoute = async (router: FastifyInstance, _opts: FastifyServerOptions, done: any) => {
   router.post<{
@@ -9,15 +12,39 @@ const authRoute = async (router: FastifyInstance, _opts: FastifyServerOptions, d
     }
   }>('/login', async (req, reply) => {
     const { email, password } = req.body
-    const [rows, _fields] = await router.mysql.execute<any>('SELECT username, password FROM users WHERE email = ?', [email])
+
+    if (email === '' || password === '') {
+      reply.status(HttpStatusCode.BAD_REQUEST).send({ error: 'email and password required' })
+    }
+
+    const [rows, _fields] = await router.mysql.execute<RowDataPacket[]>('SELECT username, password FROM users WHERE email = ?', [email])
 
     if (!(await compare(password, rows[0]['password']))) {
-      reply.send({ 'error': 'passwords not match' })
+      reply.status(HttpStatusCode.BAD_REQUEST).send({ error: 'passwords not match' })
     }
 
     const jwt = router.jwt.sign({ username: rows[0]['username'] })
 
-    reply.send({ email, jwt })
+    reply.status(HttpStatusCode.OK).send({ email, jwt })
+  })
+
+  router.post<{
+    Body: {
+      username: string,
+      email: string,
+      password: string
+    }
+  }>('/register', async (req, reply) => {
+    const { username, email, password } = req.body
+
+    if (username === '' || email === '' || password === '') {
+      reply.status(HttpStatusCode.BAD_REQUEST).send({ error: 'username, email and password required' })
+    }
+
+    const hashPwd = await hash(password, 10)
+    const [rows, fields] = await router.mysql.execute<RowDataPacket[]>('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [`@${username}`, email, hashPwd])
+
+    reply.status(HttpStatusCode.CREATED).send({ rows, fields })
   })
 
   done()

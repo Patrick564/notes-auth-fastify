@@ -6,7 +6,7 @@ declare module 'fastify' {
   interface FastifyInstance {
     mysql: MySQLPromisePool,
     config: Env,
-    authenticate: any
+    authenticate: () => Promise<void>
   }
 }
 
