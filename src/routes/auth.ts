@@ -23,9 +23,9 @@ const authRoute = async (router: FastifyInstance, _opts: FastifyServerOptions, d
       reply.status(HttpStatusCode.BAD_REQUEST).send({ error: 'passwords not match' })
     }
 
-    const jwt = router.jwt.sign({ username: rows[0]['username'] })
+    const jwt = router.jwt.sign({ username: rows[0]['username'] }, { expiresIn: 600 })
 
-    reply.status(HttpStatusCode.OK).send({ email, jwt })
+    reply.status(HttpStatusCode.OK).send({ email, token: jwt })
   })
 
   router.post<{
@@ -44,7 +44,11 @@ const authRoute = async (router: FastifyInstance, _opts: FastifyServerOptions, d
     const hashPwd = await hash(password, 10)
     const [rows, fields] = await router.mysql.execute<RowDataPacket[]>('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [`@${username}`, email, hashPwd])
 
-    reply.status(HttpStatusCode.CREATED).send({ rows, fields })
+    reply.status(HttpStatusCode.CREATED).send({
+      username: rows[0]['username'],
+      email: rows[0]['email'],
+      password: rows[0]['password']
+    })
   })
 
   done()
