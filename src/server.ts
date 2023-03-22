@@ -9,6 +9,7 @@ import { jwtPlugin } from './environment/jwt.js'
 
 import { usersRoute } from './routes/users.js'
 import { authRoute } from './routes/auth.js'
+import { tasksRoute } from './routes/tasks.js'
 
 const server: FastifyInstance<Server> = fastify({ logger: true })
 
@@ -18,7 +19,7 @@ server.register(plugin(jwtPlugin))
 
 server.register(authRoute, { prefix: '/api/auth' })
 server.register(usersRoute, { prefix: '/api/users' })
-server.register(usersRoute, { prefix: '/api/tasks' })
+server.register(tasksRoute, { prefix: '/api/tasks' })
 
 const start = async () => {
   const port = process.env.PORT || 8080

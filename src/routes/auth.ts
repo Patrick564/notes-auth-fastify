@@ -42,7 +42,7 @@ const authRoute = async (router: FastifyInstance, _opts: FastifyServerOptions, d
     }
 
     const hashPwd = await hash(password, 10)
-    const [rows, fields] = await router.mysql.execute<RowDataPacket[]>('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [`@${username}`, email, hashPwd])
+    const [rows, _fields] = await router.mysql.execute<RowDataPacket[]>('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [`@${username}`, email, hashPwd])
 
     reply.status(HttpStatusCode.CREATED).send({
       username: rows[0]['username'],
